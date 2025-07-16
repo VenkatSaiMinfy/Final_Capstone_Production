@@ -1,55 +1,96 @@
-# src/ml/pipeline/pipeline_runner.py
-
-import pandas as pd
 import os
 import sys
 import joblib
-import mlflow
-
+import pandas as pd
 from datetime import datetime
 
+# Ensure absolute imports work
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
 from src.ml.data_loader.data_loader import load_data_from_postgres
-from src.ml.pipeline.preprocessing import clean_columns, get_preprocessing_pipeline
-from src.ml.pipeline.feature_engineering import feature_engineering
+from src.ml.pipeline.preprocessing import clean_columns, get_full_pipeline
 from src.ml.pipeline.feature_selection import apply_feature_selection
+from src.ml.pipeline.feature_selector import FeatureSelector
 from src.ml.registry.model_registry import register_and_promote
+from sklearn.pipeline import Pipeline
 
-def run_pipeline(save=True, register=False):
-    df = load_data_from_postgres("lead_data")
+
+def run_pipeline(
+    table_name: str = "lead_data",
+    target_col: str = "Converted",
+    save: bool = True,
+    register: bool = False,
+    return_pipeline: bool = False
+):
+    # ─────────────────────────────────────────────
+    # 🧹 Step 1: Load and Clean Raw Data
+    # ─────────────────────────────────────────────
+    df = load_data_from_postgres(table_name)
+    print(f"[INFO] Loaded data from '{table_name}', shape: {df.shape}")
     df = clean_columns(df)
-    df = feature_engineering(df)
 
-    target = 'Converted'
-    y = df[target]
-    X = df.drop(columns=[target])
+    # ─────────────────────────────────────────────
+    # 🎯 Step 2: Separate Features and Target
+    # ─────────────────────────────────────────────
+    y = df[target_col]
+    X = df.drop(columns=[target_col])
 
-    num_cols = X.select_dtypes(include=['int64', 'float64']).columns.tolist()
-    cat_cols = X.select_dtypes(include=['object', 'category', 'bool']).columns.tolist()
+    # ─────────────────────────────────────────────
+    # ⚙️ Step 3: Define Feature Columns
+    # ─────────────────────────────────────────────
+    numeric_features = X.select_dtypes(include=["int64", "float64"]).columns.tolist()
+    categorical_features = X.select_dtypes(include=["object", "category", "bool"]).columns.tolist()
 
-    preprocessor = get_preprocessing_pipeline(num_cols, cat_cols)
-    X_processed = preprocessor.fit_transform(X)
+    # ─────────────────────────────────────────────
+    # 🔄 Step 4: Build Initial Pipeline (Feature Eng + Preprocessing)
+    # ─────────────────────────────────────────────
+    full_pipeline = get_full_pipeline(numeric_features, categorical_features)
+    full_pipeline.fit(X, y)
 
-    X_selected, _ = apply_feature_selection(X_processed, y)
+    # ─────────────────────────────────────────────
+    # 📉 Step 5: Apply Feature Selection
+    # ─────────────────────────────────────────────
+    X_transformed = full_pipeline.transform(X)
+    # After transforming X via full_pipeline.transform(...)
+    X_selected, selected_indices = apply_feature_selection(X_transformed, y)
 
+    final_pipeline = Pipeline([
+        ("feature_engineering", full_pipeline.named_steps["feature_engineering"]),
+        ("preprocessing",     full_pipeline.named_steps["preprocessing"]),
+        ("feature_selection", FeatureSelector(selected_features=selected_indices)),
+    ])
+    final_pipeline.fit(X, y)
+
+
+    # ─────────────────────────────────────────────
+    # 💾 Step 7: Save Final Pipeline (No Model Included)
+    # ─────────────────────────────────────────────
     if save:
         os.makedirs("models", exist_ok=True)
-        joblib.dump(preprocessor, "models/preprocessor.pkl")
-        print("✅ Preprocessing pipeline saved to 'models/preprocessor.pkl'")
+        joblib.dump(final_pipeline, "models/full_pipeline.pkl")
+        print("✅ Full preprocessing pipeline (with feature selection) saved at 'models/full_pipeline.pkl'")
 
+    # ─────────────────────────────────────────────
+    # 🚀 Step 8: Register to MLflow
+    # ─────────────────────────────────────────────
     if register:
         try:
-            from src.ml.registry.model_registry import register_and_promote
             register_and_promote(
                 registry_name="LeadScoringPreprocessor",
-                model_object=preprocessor,
+                model_object=final_pipeline,
                 is_pipeline=True
             )
+            print("✅ Pipeline registered in MLflow as 'LeadScoringPreprocessor'")
         except Exception as e:
-            print(f"❌ Failed to register/promote preprocessor: {e}")
+            print(f"❌ Failed to register/promote pipeline: {e}")
 
-    return X_selected, y  # ✅ Always return this
+    # ─────────────────────────────────────────────
+    # 🔁 Step 9: Return for Upstream Use
+    # ─────────────────────────────────────────────
+    if return_pipeline:
+        return X_selected, y, final_pipeline
+
+    return X_selected, y
 
 
 if __name__ == "__main__":

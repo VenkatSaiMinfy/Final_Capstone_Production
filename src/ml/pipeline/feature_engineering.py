@@ -1,25 +1,28 @@
 # src/ml/pipeline/feature_engineering.py
 
 import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
 
-def add_behavioral_flags(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Add binary flags like is_zero for skewed numeric features.
-    """
-    for col in ['TotalVisits', 'Total Time Spent on Website']:
-        if col in df.columns:
-            df[f'{col}_is_zero'] = (df[col] == 0).astype(int)
-    return df
+class FeatureEngineeringTransformer(BaseEstimator, TransformerMixin):
+    def __init__(self):
+        pass
 
-def add_combined_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Create composite features like engagement score.
-    """
-    if {'TotalVisits', 'Total Time Spent on Website'}.issubset(df.columns):
-        df['EngagementScore'] = df['TotalVisits'] * df['Total Time Spent on Website']
-    return df
+    def add_behavioral_flags(self, df: pd.DataFrame) -> pd.DataFrame:
+        for col in ['TotalVisits', 'Total Time Spent on Website']:
+            if col in df.columns:
+                df[f'{col}_is_zero'] = (df[col] == 0).astype(int)
+        return df
 
-def feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
-    df = add_behavioral_flags(df)
-    df = add_combined_features(df)
-    return df
+    def add_combined_features(self, df: pd.DataFrame) -> pd.DataFrame:
+        if {'TotalVisits', 'Total Time Spent on Website'}.issubset(df.columns):
+            df['EngagementScore'] = df['TotalVisits'] * df['Total Time Spent on Website']
+        return df
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_copy = X.copy()
+        X_copy = self.add_behavioral_flags(X_copy)
+        X_copy = self.add_combined_features(X_copy)
+        return X_copy

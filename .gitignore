@@ -3,3 +3,7 @@ data/
 mlartifacts/
 mlruns/
 notebooks/
+src/airflow/airflow.cfg
+src/airflow/airflow.db
+src/airflow/webserver_config.py
+src/airflow/logs/
