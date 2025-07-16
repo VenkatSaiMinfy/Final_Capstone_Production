@@ -1,0 +1,5 @@
+.env
+data/
+mlartifacts/
+mlruns/
+notebooks/
