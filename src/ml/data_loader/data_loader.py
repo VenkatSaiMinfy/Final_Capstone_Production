@@ -34,3 +34,26 @@ def load_csv_to_postgres(csv_path: str, table_name: str, if_exists: str = "repla
 
     df.to_sql(table_name, engine, index=False, if_exists=if_exists)
     print(f"✅ Data loaded into table '{table_name}' in PostgreSQL")
+
+
+def save_dataframe_to_postgres(df: pd.DataFrame, table_name: str, if_exists: str = "replace"):
+    """
+    Saves a given DataFrame to a PostgreSQL table.
+
+    Args:
+        df (pd.DataFrame): DataFrame to save.
+        table_name (str): Target table name in PostgreSQL.
+        if_exists (str): Behavior if table exists: 'replace', 'append', or 'fail'.
+    """
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("Input must be a pandas DataFrame.")
+
+    if df.empty:
+        raise ValueError("The DataFrame is empty and cannot be saved.")
+
+    try:
+        engine = get_db_engine()
+        df.to_sql(table_name, engine, index=False, if_exists=if_exists)
+        print(f"✅ DataFrame saved to table '{table_name}' in PostgreSQL (if_exists='{if_exists}')")
+    except Exception as e:
+        raise RuntimeError(f"[ERROR] Failed to save DataFrame to PostgreSQL: {e}")

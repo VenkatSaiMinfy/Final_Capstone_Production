@@ -13,6 +13,8 @@ from src.ml.pipeline.feature_selection import apply_feature_selection
 from src.ml.pipeline.feature_selector import FeatureSelector
 from src.ml.registry.model_registry import register_and_promote
 from sklearn.pipeline import Pipeline
+from src.ml.data_loader.data_loader import save_dataframe_to_postgres
+
 
 
 def run_pipeline(
@@ -69,6 +71,13 @@ def run_pipeline(
         os.makedirs("models", exist_ok=True)
         joblib.dump(final_pipeline, "models/full_pipeline.pkl")
         print("✅ Full preprocessing pipeline (with feature selection) saved at 'models/full_pipeline.pkl'")
+
+        # Save only the preprocessed features (no labels) into Postgres
+        df_pre = pd.DataFrame(
+            X_selected,
+            columns=[f"f_{i}" for i in selected_indices]
+        )
+        save_dataframe_to_postgres(df_pre, table_name="preprocessed_train_data")
 
     # ─────────────────────────────────────────────
     # 🚀 Step 8: Register to MLflow

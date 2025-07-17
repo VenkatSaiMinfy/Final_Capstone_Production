@@ -12,6 +12,7 @@ here = os.path.dirname(__file__)
 project_root = os.path.abspath(os.path.join(here, "../../../"))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
+from src.ml.data_loader.data_loader import save_dataframe_to_postgres  # ⬅️ Import saving utility
 
 # ─────────────────────────────────────────────
 # Constants: Model Registry Names and Stage
@@ -64,42 +65,39 @@ def predict_lead(input_dict: dict) -> Union[float, dict]:
 # ─────────────────────────────────────────────
 # Batch prediction
 # ─────────────────────────────────────────────
-def predict_batch(df: pd.DataFrame) -> Union[List[float], dict]:
-    """
-    Predict conversion probabilities for a batch of leads.
-    Includes debug logs to inspect intermediate shapes and types.
-    """
+def predict_batch(df: pd.DataFrame, save: bool = True) -> Union[List[float], dict]:
     try:
-        # 1) Full pipeline transform
+        # 1) Transform
         X_proc = preprocessor.transform(df)
-        print("🔧 [DEBUG] After transform: type=", type(X_proc), 
-              "shape=", getattr(X_proc, "shape", None))
 
-        # 2) Raw model output
+        # 2) Save transformed features with generic names
+        if save:
+            n_feats = X_proc.shape[1]
+            cols    = [f"f_{i}" for i in range(n_feats)]
+            df_pre  = pd.DataFrame(X_proc, columns=cols)
+
+            save_dataframe_to_postgres(
+                df_pre,
+                table_name="user_uploaded_preprocessed",
+                if_exists="append"
+            )
+            print("✅ Preprocessed features saved to 'user_uploaded_preprocessed'.")
+
+        # 3) Predict
         raw = model.predict_proba(X_proc)
-        print("📈 [DEBUG] Raw predict_proba output: type=", type(raw), 
-              "repr=", raw)
-
-        # 3) Coerce to NumPy array
         arr = np.asarray(raw)
-        print("🔍 [DEBUG] As array: ndim=", arr.ndim, "shape=", arr.shape)
 
-        # 4) Index appropriately
+        # 4) Build predictions
         if arr.ndim == 1:
-            return [float(x) for x in arr]
-        if arr.ndim == 2 and arr.shape[1] >= 2:
-            return [float(x) for x in arr[:, 1]]
-        if arr.ndim == 2 and arr.shape[1] == 1:
-            return [float(x) for x in arr[:, 0]]
+            preds = [float(x) for x in arr]
+        else:
+            preds = [float(x) for x in arr[:, 1]]
 
-        return {"error": f"Unexpected output shape: {arr.shape}"}
+        return preds
 
     except Exception as e:
         print("❌ [ERROR] in predict_batch:", e)
         return {"error": str(e)}
-
-
-
 # ─────────────────────────────────────────────
 # (Optional) Debug test when run directly
 # ─────────────────────────────────────────────
