@@ -1,0 +1,150 @@
+.
+├── .gitignore
+├── README.md
+├── data
+│   ├── eda_report.html
+│   ├── lead_scoring.csv
+│   └── test_lead_scoring.csv
+├── models
+│   ├── full_pipeline.pkl
+│   └── preprocessor.pkl
+├── notebooks
+│   └── exploratory.ipynb
+├── reports
+│   └── drift
+│       ├── drift_lead_data_vs_uploaded_20250717_052645.html
+│       ├── drift_lead_data_vs_uploaded_20250717_052645.json
+│       ├── drift_train_vs_test_20250716_080726.html
+│       ├── drift_train_vs_test_20250716_080726.json
+├── requirements.txt
+├── scripts
+│   ├── load_data_to_postgres.py
+│   └── run_drift.py
+├── src
+│   ├── airflow
+│   │   ├── airflow.cfg
+│   │   ├── airflow.db
+│   │   ├── dags
+│   │   │   └── drift_retrain_dag.py
+│   │   ├── logs
+│   │   │   ├── dag_id=drift_and_retrain
+│   │   │   │   ├── run_id=manual__2025-07-16T17:55:44.183292+00:00
+│   │   │   │   │   └── task_id=wait_for_new_upload
+│   │   │   │   │       └── attempt=1.log
+│   │   │   ├── dag_processor_manager
+│   │   │   │   └── dag_processor_manager.log
+│   │   │   └── scheduler
+│   │   │       ├── 2025-07-16
+│   │   │       │   ├── drift_retrain_dag.py.log
+│   │   │       │   └── native_dags
+│   │   │       │       └── example_dags
+│   │   │       │           ├── example_bash_decorator.py.log
+│   │   │       │           ├── plugins
+│   │   │       │           │   ├── decreasing_priority_weight_strategy.py.log
+│   │   │       │           │   ├── event_listener.py.log
+│   │   │       │           │   ├── listener_plugin.py.log
+│   │   │       │           │   └── workday.py.log
+│   │   │       │           ├── subdags
+│   │   │       │           │   └── subdag.py.log
+│   │   │       │           ├── tutorial.py.log
+│   │   │       │           ├── tutorial_dag.py.log
+│   │   │       │           ├── tutorial_objectstorage.py.log
+│   │   │       │           ├── tutorial_taskflow_api.py.log
+│   │   │       │           └── tutorial_taskflow_api_virtualenv.py.log
+│   │   │       ├── 2025-07-17
+│   │   │       │   ├── drift_retrain_dag.py.log
+│   │   │       │   └── native_dags
+│   │   │       │       └── example_dags
+│   │   │       │           ├── plugins
+│   │   │       │           │   ├── decreasing_priority_weight_strategy.py.log
+│   │   │       │           │   ├── event_listener.py.log
+│   │   │       │           │   ├── listener_plugin.py.log
+│   │   │       │           │   └── workday.py.log
+│   │   │       │           ├── subdags
+│   │   │       │           │   └── subdag.py.log
+│   │   │       │           ├── tutorial.py.log
+│   │   │       │           ├── tutorial_dag.py.log
+│   │   │       │           ├── tutorial_objectstorage.py.log
+│   │   │       │           ├── tutorial_taskflow_api.py.log
+│   │   │       │           └── tutorial_taskflow_api_virtualenv.py.log
+│   │   │       └── latest -> 2025-07-17
+│   │   ├── scripts
+│   │   │   ├── check_drift_runner.py
+│   │   │   ├── retrain_runner.py
+│   │   │   └── trigger_upload_monitor.py
+│   │   ├── utils
+│   │   │   └── airflow_loader.py
+│   │   └── webserver_config.py
+│   ├── app
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   ├── routes.py
+│   │   ├── static
+│   │   ├── templates
+│   │   │   └── index.html
+│   │   └── utils
+│   │       ├── prediction.py
+│   │       └── upload.py
+│   ├── db
+│   │   ├── __init__.py
+│   │   └── db_utils.py
+│   ├── drift
+│   │   ├── check_drift.py
+│   │   └── retrain_model.py
+│   ├── eda
+│   │   ├── __init__.py
+│   │   └── profiler.py
+│   ├── logs
+│   │   └── scheduler
+│   │       ├── 2025-07-16
+│   │       └── latest -> 2025-07-16
+│   ├── ml
+│   │   ├── __init__.py
+│   │   ├── data_loader
+│   │   │   ├── __init__.py
+│   │   │   └── data_loader.py
+│   │   ├── evaluation
+│   │   │   ├── comparator.py
+│   │   │   └── metrics.py
+│   │   ├── inference
+│   │   │   ├── inference.py
+│   │   │   └── predictor.py
+│   │   ├── model_objects
+│   │   │   ├── GradientBoosting_model.pkl
+│   │   │   ├── LightGBM_model.pkl
+│   │   │   ├── LogisticRegression_model.pkl
+│   │   │   ├── RandomForest_model.pkl
+│   │   │   ├── SVM_model.pkl
+│   │   │   └── XGBoost_model.pkl
+│   │   ├── pipeline
+│   │   │   ├── __init__.py
+│   │   │   ├── custom_transformers.py
+│   │   │   ├── feature_engineering.py
+│   │   │   ├── feature_selection.py
+│   │   │   ├── feature_selector.py
+│   │   │   ├── pipeline_runner.py
+│   │   │   ├── preprocessing.py
+│   │   │   └── schema_validator.py
+│   │   ├── registry
+│   │   │   ├── __init__.py
+│   │   │   └── model_registry.py
+│   │   └── training
+│   │       ├── __init__.py
+│   │       ├── drift_baseline.py
+│   │       ├── mlflow_logger.py
+│   │       ├── train.py
+│   │       └── train_utils.py
+│   ├── reports
+│   │   └── drift
+│   └── tests
+│       ├── test_drift.py
+│       ├── test_eda.py
+│       ├── test_pipeline.py
+│       ├── test_preprocessing.py
+│       └── test_training.py
+├── structure.txt
+└── uploads
+    ├── Lead_Scoring.csv
+    └── test_Lead_Scoring.csv
+
+97 directories, 257 files

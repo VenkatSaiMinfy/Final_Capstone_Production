@@ -1,0 +1,42 @@
+                                                                Table "public.lead_data"
+                    Column                     |       Type       | Collation | Nullable | Default | Storage  | Compression | Stats target | Description 
+-----------------------------------------------+------------------+-----------+----------+---------+----------+-------------+--------------+-------------
+ Prospect ID                                   | text             |           |          |         | extended |             |              | 
+ Lead Number                                   | bigint           |           |          |         | plain    |             |              | 
+ Lead Origin                                   | text             |           |          |         | extended |             |              | 
+ Lead Source                                   | text             |           |          |         | extended |             |              | 
+ Do Not Email                                  | text             |           |          |         | extended |             |              | 
+ Do Not Call                                   | text             |           |          |         | extended |             |              | 
+ Converted                                     | bigint           |           |          |         | plain    |             |              | 
+ TotalVisits                                   | double precision |           |          |         | plain    |             |              | 
+ Total Time Spent on Website                   | bigint           |           |          |         | plain    |             |              | 
+ Page Views Per Visit                          | double precision |           |          |         | plain    |             |              | 
+ Last Activity                                 | text             |           |          |         | extended |             |              | 
+ Country                                       | text             |           |          |         | extended |             |              | 
+ Specialization                                | text             |           |          |         | extended |             |              | 
+ How did you hear about X Education            | text             |           |          |         | extended |             |              | 
+ What is your current occupation               | text             |           |          |         | extended |             |              | 
+ What matters most to you in choosing a course | text             |           |          |         | extended |             |              | 
+ Search                                        | text             |           |          |         | extended |             |              | 
+ Magazine                                      | text             |           |          |         | extended |             |              | 
+ Newspaper Article                             | text             |           |          |         | extended |             |              | 
+ X Education Forums                            | text             |           |          |         | extended |             |              | 
+ Newspaper                                     | text             |           |          |         | extended |             |              | 
+ Digital Advertisement                         | text             |           |          |         | extended |             |              | 
+ Through Recommendations                       | text             |           |          |         | extended |             |              | 
+ Receive More Updates About Our Courses        | text             |           |          |         | extended |             |              | 
+ Tags                                          | text             |           |          |         | extended |             |              | 
+ Lead Quality                                  | text             |           |          |         | extended |             |              | 
+ Update me on Supply Chain Content             | text             |           |          |         | extended |             |              | 
+ Get updates on DM Content                     | text             |           |          |         | extended |             |              | 
+ Lead Profile                                  | text             |           |          |         | extended |             |              | 
+ City                                          | text             |           |          |         | extended |             |              | 
+ Asymmetrique Activity Index                   | text             |           |          |         | extended |             |              | 
+ Asymmetrique Profile Index                    | text             |           |          |         | extended |             |              | 
+ Asymmetrique Activity Score                   | double precision |           |          |         | plain    |             |              | 
+ Asymmetrique Profile Score                    | double precision |           |          |         | plain    |             |              | 
+ I agree to pay the amount through cheque      | text             |           |          |         | extended |             |              | 
+ A free copy of Mastering The Interview        | text             |           |          |         | extended |             |              | 
+ Last Notable Activity                         | text             |           |          |         | extended |             |              | 
+Access method: heap
+
