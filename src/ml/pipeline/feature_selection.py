@@ -1,7 +1,7 @@
 from sklearn.feature_selection import SelectFromModel
 from sklearn.ensemble import RandomForestClassifier
 
-def apply_feature_selection(X, y, top_n=20):
+def apply_feature_selection(X, y, top_n=50):
     model = RandomForestClassifier(n_estimators=50, max_depth=7, random_state=42)
     model.fit(X, y)
     importances = model.feature_importances_
