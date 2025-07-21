@@ -9,19 +9,9 @@ import os
 
 # Add project root to Python path dynamically
 # Dynamically find the path to the 'lead_scoring_project' directory
-CURRENT_FILE_PATH = os.path.abspath(__file__)
-while True:
-    CURRENT_FILE_PATH = os.path.dirname(CURRENT_FILE_PATH)
-    if os.path.exists(os.path.join(CURRENT_FILE_PATH, 'src')):
-        break
-
-if CURRENT_FILE_PATH not in sys.path:
-    sys.path.insert(0, CURRENT_FILE_PATH)
 
 
-from src.airflow.scripts.trigger_upload_monitor import has_new_upload
-from src.airflow.scripts.check_drift_runner import run_drift_check
-from src.airflow.scripts.retrain_runner import run_retrain
+from check_drift_runner import run_drift_check
 
 
 default_args = {
@@ -49,7 +39,7 @@ with DAG(
         python_callable=run_drift_check,
     )
 
-    branch_retrain = BranchPythonOperator(
+    '''branch_retrain = BranchPythonOperator(
         task_id="branch_on_drift",
         python_callable=lambda drift: "retrain_model" if drift else "end",
         op_args=["{{ ti.xcom_pull(task_ids='perform_drift_check') }}"],
@@ -59,9 +49,10 @@ with DAG(
         task_id="retrain_model",
         python_callable=run_retrain,
     )
-
+'''
     end = EmptyOperator(task_id="end")
 
-    check_drift >> branch_retrain
+    check_drift 
+    '''>> branch_retrain
     branch_retrain >> [retrain, end]
-    retrain >> end
+    retrain >> end'''
