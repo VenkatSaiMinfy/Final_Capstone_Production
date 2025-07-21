@@ -30,7 +30,3 @@ S3_BUCKET=your_s3_bucket_name
 ```
 
 
-# For Production Level Code Access this repo
-```text
-https://github.com/VenkatSaiMinfy/Final_Capstone_Production
-```
